@@ -1,5 +1,7 @@
+var request = require('request');
 var express = require('express');
 var app = express();
+var bodyParser = require('body-parser');
 
 app.set('view engine', 'html');
 app.enable('view cache');
@@ -11,7 +13,7 @@ app.use(express.static(__dirname + '/public'));
 app.use("/styles", express.static(__dirname + '/styles'));
 app.use("/js", express.static(__dirname + '/js'));
 app.use("/images", express.static(__dirname + '/images'));
-app.use(bodyParser());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', function(req, res) {
 	res.render('index.html')
