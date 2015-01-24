@@ -15,6 +15,19 @@ app.use("/js", express.static(__dirname + '/js'));
 app.use("/images", express.static(__dirname + '/images'));
 app.use(bodyParser.urlencoded({ extended: true }));
 
+var playerCount = 0;
+var WebSocketServer = require('ws').Server, wss = new WebSocketServer({port: 8080});
+wss.on('connection', function(ws) {
+	ws.on('message', function(message) {
+		if (message = "Player Connected") {
+			console.log(message);
+			playerCount++;
+			console.log(playerCount)
+			ws.send(playerCount.toString());
+		}
+	});
+});
+
 app.get('/', function(req, res) {
 	res.render('index.html')
 })
