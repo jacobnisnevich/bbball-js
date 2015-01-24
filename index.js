@@ -1,7 +1,9 @@
 var request = require('request');
 var express = require('express');
-var app = express();
+var http = require('http');
+var WebSocketServer = require('ws').Server;
 var bodyParser = require('body-parser');
+var app = express();
 
 app.set('view engine', 'html');
 app.enable('view cache');
@@ -16,7 +18,13 @@ app.use("/images", express.static(__dirname + '/images'));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 var playerCount = 0;
-var WebSocketServer = require('ws').Server, wss = new WebSocketServer({port: 8080});
+
+var server = http.createServer(app);
+server.listen(app.get('port'));
+console.log("http server listening on %d", app.get('port'));
+
+var wss = new WebSocketServer({server: server});
+console.log("WebSocketServer created");
 wss.on('connection', function(ws) {
 	ws.on('message', function(message) {
 		if (message = "Player Connected") {
@@ -30,8 +38,4 @@ wss.on('connection', function(ws) {
 
 app.get('/', function(req, res) {
 	res.render('index.html')
-})
-
-app.listen(app.get('port'), function() {
-	console.log("Node app is running at localhost:" + app.get('port'))
 })
