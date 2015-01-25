@@ -40,6 +40,9 @@ wss.on('connection', function(ws) {
 		console.log("Player Disconnected");
 		playerCount--;
 		console.log(playerCount);
+		wss.clients.forEach(function each(client) {
+			client.send(playerCount.toString());
+		});
 	});
 });
 
