@@ -30,9 +30,16 @@ wss.on('connection', function(ws) {
 		if (message = "Player Connected") {
 			console.log(message);
 			playerCount++;
-			console.log(playerCount)
-			ws.send(playerCount.toString());
+			console.log(playerCount);
+			wss.clients.forEach(function each(client) {
+				client.send(playerCount.toString());
+			});
 		}
+	});
+	ws.on('close', function() {
+		console.log("Player Disconnected");
+		playerCount--;
+		console.log(playerCount);
 	});
 });
 

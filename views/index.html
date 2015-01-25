@@ -5,36 +5,46 @@
 </head>
 <body>
 	<script>
-		// Set up WS
-		var host = location.origin.replace(/^http/, 'ws');
-		var ws = new WebSocket(host);
-		ws.onopen = function() {
-			ws.send('Player Connected');
-		}
-		ws.onmessage = function(msg) {
-			console.log(msg.data);
-			$("#count").html(msg.data);
-		}
+		$(document).ready(function() {
+			// Set up WS
+			var host = location.origin.replace(/^http/, 'ws');
+			var ws = new WebSocket(host);
+			ws.onopen = function() {
+				ws.send('Player Connected');
+			}
+			ws.onclose = function() {
+				$("#count").html(Number($("#count").html()) - 1);
+			}
+			ws.onmessage = function(msg) {
+				console.log(msg.data);
+				$("#count").html(msg.data);
+			}
 
-		// create an new instance of a pixi stage
-		var stage = new PIXI.Stage(0x66FF99);
-	 
-		// create a renderer instance.
-		var renderer = PIXI.autoDetectRenderer(400, 300);
-	 
-		// add the renderer view element to the DOM
-		document.body.appendChild(renderer.view);
-	 
-		requestAnimFrame( animate );
-	 
-		function animate() {
-	 
+			$('#disconnect').click(function() {
+				ws.close();
+			});
+
+			// create an new instance of a pixi stage
+			var stage = new PIXI.Stage(0x66FF99);
+		 
+			// create a renderer instance.
+			var renderer = PIXI.autoDetectRenderer(400, 300);
+		 
+			// add the renderer view element to the DOM
+			document.body.appendChild(renderer.view);
+		 
 			requestAnimFrame( animate );
-	 
-			// render the stage   
-			renderer.render(stage);
-		}
+		 
+			function animate() {
+		 
+				requestAnimFrame( animate );
+		 
+				// render the stage   
+				renderer.render(stage);
+			}
+		});
 	</script>
+	<button id="disconnect">Disconnect</button>
 	<div id="count">0</div>
 </body>
 </html>
