@@ -1,7 +1,7 @@
 {
   "name": "bbball-js",
   "version": "0.0.1",
-  "description": "A competitive 3D multiplayer platformer",
+  "description": "A competitive multiplayer platforming game",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
