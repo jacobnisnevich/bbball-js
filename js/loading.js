@@ -1,5 +1,5 @@
 var loading = function(game) {
-	console.log("Starting bbball-js", "color:white; background:green");
+	console.log("%cStarting bbball-js", "color:white; background:green");
 };
 
 loading.prototype = {
