@@ -102,3 +102,11 @@ var setEventHandlers = function() {
 		others.splice(others.indexOf(removePlayer), 1);
 	});
 };
+
+function playerById(id) {
+	for (var i = 0; i < others.length; i++) {
+		if (others[i].player.name == id) {
+			return others[i];
+		}
+	};
+};
