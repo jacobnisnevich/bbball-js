@@ -4,9 +4,11 @@ var host = location.origin;
 var player;
 var socket;
 var others;
+var game;
 
 theGame.prototype = {
 	create: function() {
+		game = this.game;
 		socket = io.connect(host);
 		console.log("Socket connected to " + host);
 
@@ -58,50 +60,50 @@ theGame.prototype = {
 		}
 
 		socket.emit("move player", playerData);
-	},
-	setEventHandlers: function() {
-		socket.on("connect", function() {
-			console.log("Connection to server established");
-			socket.emit("new player", {
-				x: player.x,
-				y: player.y,
-				frame: player.frame
-			});
-		});
-		socket.on("disconnect", function() {
-			console.log("Disconnected from server")
-		});
-		socket.on("new player", function(data) {
-			console.log("New player " + data.id + " connected");
-			others.push(new multiplayerPlayer(data.id, game, player, data.x, data.y, data.frame));
-		});
-		socket.on("move player", function(data) {
-			var movePlayer = playerById(data.id);
-	
-			if (!movePlayer) {
-				console.log("Player not found: " + data.id);
-				return;
-			}
-	
-			movePlayer.player.x = data.x;
-			movePlayer.player.y = data.y;
-			movePlayer.player.frame = data.frame;
-		});
-		socket.on("remove player", function(data) {
-			var removePlayer = playerById(data.id);
-	
-			if (!removePlayer) {
-				console.log("Player not found: " + data.id);
-				return;
-			}
-	
-			removePlayer.player.kill();
-	
-			others.splice(others.indexOf(removePlayer), 1);
-		});
 	}
 }
 
+function setEventHandlers() {
+	socket.on("connect", function() {
+		console.log("Connection to server established");
+		socket.emit("new player", {
+			x: player.x,
+			y: player.y,
+			frame: player.frame
+		});
+	});
+	socket.on("disconnect", function() {
+		console.log("Disconnected from server")
+	});
+	socket.on("new player", function(data) {
+		console.log("New player " + data.id + " connected");
+		others.push(new multiplayerPlayer(data.id, game, player, data.x, data.y, data.frame));
+	});
+	socket.on("move player", function(data) {
+		var movePlayer = playerById(data.id);
+
+		if (!movePlayer) {
+			console.log("Player not found: " + data.id);
+			return;
+		}
+
+		movePlayer.player.x = data.x;
+		movePlayer.player.y = data.y;
+		movePlayer.player.frame = data.frame;
+	});
+	socket.on("remove player", function(data) {
+		var removePlayer = playerById(data.id);
+
+		if (!removePlayer) {
+			console.log("Player not found: " + data.id);
+			return;
+		}
+
+		removePlayer.player.kill();
+
+		others.splice(others.indexOf(removePlayer), 1);
+	});
+};
 function playerById(id) {
 	for (var i = 0; i < others.length; i++) {
 		if (others[i].player.name == id) {
