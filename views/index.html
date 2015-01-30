@@ -14,11 +14,6 @@
 <body>
 	<script>
 		$(document).ready(function() {
-			var host = location.origin;
-			var player;
-			var socket;
-			var others;
-
 			$('#disconnect').click(function() {
 				socket.close();
 			});
@@ -32,14 +27,6 @@
 			game.state.add("HelpScreen", help);
 			game.state.add("TheGame", theGame);
 			game.state.start("Loading");
-
-			function playerById(id) {
-				for (var i = 0; i < others.length; i++) {
-					if (others[i].player.name == id) {
-						return others[i];
-					}
-				};
-			};
 		});
 	</script>
 	<button id="disconnect">Disconnect</button>
