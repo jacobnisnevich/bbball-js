@@ -3,31 +3,17 @@
 	<script src="https://code.jquery.com/jquery-2.1.3.js"></script>
 	<script src="/lib/socket.io.js"></script>
 	<script src="/lib/phaser.js"></script>
+	<script src="/js/multiplayer.js"></script>
+	<script src="/js/loading.js"></script>
+	<script src="/js/preload.js"></script>
+	<script src="/js/menu.js"></script>	
+	<script src="/js/lobby.js"></script>	
+	<script src="/js/help.js"></script>	
+	<script src="/js/thegame.js"></script>
 </head>
 <body>
 	<script>
 		$(document).ready(function() {
-			multiplayerPlayer = function(index, game, player, initX, initY, initFrame) {
-				var x = initX;
-				var y = initY;
-				var frame = initFrame;
-
-				this.game = game;
-				this.player = player;
-				this.alive = true;
-
-				this.player = game.add.sprite(x, y, 'dude_remote');
-
-				this.player.animations.add('left', [0, 1, 2, 3], 10, true);
-				this.player.animations.add('right', [5, 6, 7, 8], 10, true);
-				game.physics.arcade.enable(this.player);
-				console.log(this.player);
-
-				this.player.name = index.toString();
-				this.player.body.immovable = true;
-				this.player.body.collideWorldBounds = true;
-			};
-
 			var host = location.origin;
 			var player;
 			var socket;
@@ -37,115 +23,15 @@
 				socket.close();
 			});
 
-			var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
-				preload: preload,
-				create: create,
-				update: update
-			});
+			var game = new Phaser.Game(800, 600, Phaser.AUTO, "game");
 
-
-			function preload() {
-				game.load.image('sky', '/images/sky.png');
-				game.load.image('ground', '/images/platform.png');
-				game.load.spritesheet('dude', '/images/dude_custom.png', 32, 48);
-				game.load.spritesheet('dude_remote', '/images/dude.png', 32, 48);
-			}
-			function create() {
-				socket = io.connect(host);
-				console.log("Socket connected to " + host);
-
-				game.physics.startSystem(Phaser.Physics.ARCADE);
-				game.add.sprite(0, 0, 'sky');
-
-				platforms = game.add.group();
-				platforms.enableBody = true;
-				var ground = platforms.create(0, game.world.height - 64, 'ground');
-				ground.scale.setTo(2,2);
-				ground.body.immovable = true;
-
-				others = [];
-
-				player = game.add.sprite(32, game.world.height - 150, 'dude');
-				game.physics.arcade.enable(player);
-				player.body.bounce.y = 0.2
-				player.body.gravity.y = 300;
-				player.body.collideWorldBounds = true;
-				player.animations.add('left', [0, 1, 2, 3], 10, true);
-				player.animations.add('right', [5, 6, 7, 8], 10, true);
-				
-				setEventHandlers();
-			}
-
-			var setEventHandlers = function() {
-				socket.on("connect", function() {
-					console.log("Connection to server established");
-					socket.emit("new player", {
-						x: player.x,
-						y: player.y,
-						frame: player.frame
-					});
-				});
-				socket.on("disconnect", function() {
-					console.log("Disconnected from server")
-				});
-				socket.on("new player", function(data) {
-					console.log("New player " + data.id + " connected");
-					others.push(new multiplayerPlayer(data.id, game, player, data.x, data.y, data.frame));
-				});
-				socket.on("move player", function(data) {
-					var movePlayer = playerById(data.id);
-
-					if (!movePlayer) {
-						console.log("Player not found: " + data.id);
-						return;
-					}
-
-					movePlayer.player.x = data.x;
-					movePlayer.player.y = data.y;
-					movePlayer.player.frame = data.frame;
-				});
-				socket.on("remove player", function(data) {
-					var removePlayer = playerById(data.id);
-
-					if (!removePlayer) {
-						console.log("Player not found: " + data.id);
-						return;
-					}
-
-					removePlayer.player.kill();
-
-					others.splice(others.indexOf(removePlayer), 1);
-				});
-			};
-
-			function update() {
-				game.physics.arcade.collide(player, platforms);
-
-				cursors = game.input.keyboard.createCursorKeys();
-				player.body.velocity.x = 0;
-				if (cursors.left.isDown) {
-					player.body.velocity.x = -150;
-					player.animations.play('left');
-				} else if (cursors.right.isDown) {
-					player.body.velocity.x = 150;
-					player.animations.play('right');
-				} else {
-					player.animations.stop();
-					player.frame = 4;
-				}
-
-				if (cursors.up.isDown && player.body.touching.down) {
-					player.body.velocity.y = -350;
-				}
-
-				var playerData = {
-					x: player.x,
-					y: player.y,
-					frame: player.frame
-				}
-
-				socket.emit("move player", playerData);
-			}
+			game.state.add("Loading", loading);
+			game.state.add("Preload", preload);
+			game.state.add("TitleScreen", menu);
+			game.state.add("LobbyScreen", lobby);
+			game.state.add("HelpScreen", help);
+			game.state.add("TheGame", theGame);
+			game.state.start("Loading");
 
 			function playerById(id) {
 				for (var i = 0; i < others.length; i++) {
