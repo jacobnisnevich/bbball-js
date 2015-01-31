@@ -14,10 +14,6 @@
 <body>
 	<script>
 		$(document).ready(function() {
-			$('#disconnect').click(function() {
-				socket.close();
-			});
-
 			var game = new Phaser.Game(800, 600, Phaser.AUTO, "game");
 
 			game.state.add("Loading", loading);
@@ -29,6 +25,5 @@
 			game.state.start("Loading");
 		});
 	</script>
-	<button id="disconnect">Disconnect</button>
 </body>
 </html>
